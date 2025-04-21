@@ -82,6 +82,7 @@ import {
   UserTypes,
 } from "@/store/features/UserDataSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/hooks";
+import { useRouter } from "next/navigation";
 
 // SideBar Component
 export default function AppSideBar() {
@@ -223,7 +224,6 @@ function Pages() {
 
   useEffect(() => {
     setPagesData();
-    console.log(data);
   }, [data]);
 
   return (
@@ -373,6 +373,7 @@ function AlertDialogDemo({ refreshFunction }: { refreshFunction: () => void }) {
   const [pageName, setPageName] = useState<string>("");
   const reduxUser = useAppSelector((state) => state.userData.user);
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   async function handleSubmit() {
     if (pageName.length === 0) {
@@ -397,19 +398,16 @@ function AlertDialogDemo({ refreshFunction }: { refreshFunction: () => void }) {
 
       toast(response.data.message);
 
-      // we can also redirect it to the page which is currrently created
-      // router.push("/notion");
-
-      // Changes in the main data stored
       dispatch(
         setUpdatePage({
           title: pageName,
           pid: response.data.pid,
-          ppid: "MY PAGE",
+          ppid: "",
           private: true,
         })
       );
       refreshFunction();
+      router.push(`/notion?pid=${response.data.pid}`);
     } catch (err) {
       toast(err.response.data.message || "ERRROR");
     } finally {

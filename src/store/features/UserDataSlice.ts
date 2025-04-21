@@ -1,9 +1,5 @@
-import {
-  createSlice,
-  PayloadAction,
-  PayloadActionCreator,
-} from "@reduxjs/toolkit";
-import { title } from "process";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Payload } from "../../../prisma/src/app/generate/prisma/runtime/library";
 
 export interface UserTypes {
   uid: string;
@@ -28,7 +24,7 @@ export interface PagesTypes {
 export interface ContentTypes {
   pid: string;
   cid: string;
-  type: string;
+  type: string; // Singular "type"
   content: string;
   order: number;
 }
@@ -43,38 +39,43 @@ export interface UserDataType {
 export const UserDataSlice = createSlice({
   name: "userData",
   initialState: {
-    user: {
-      uid: "",
-      name: "",
-      email: "",
-      image: "",
-    },
+    // user: {
+    //   uid: "",
+    //   name: "",
+    //   email: "",
+    //   image: "",
+    // },
 
-    workspace: [
-      {
-        wid: "",
-        name: "",
-      },
-    ],
+    // workspace: [
+    //   {
+    //     wid: "",
+    //     name: "",
+    //   },
+    // ],
 
-    pages: [
-      {
-        pid: "",
-        ppid: "",
-        title: "",
-        private: false,
-      },
-    ],
+    // pages: [
+    //   {
+    //     pid: "",
+    //     ppid: "",
+    //     title: "",
+    //     private: false,
+    //   },
+    // ],
 
-    content: [
-      {
-        pid: "",
-        cid: "",
-        types: "",
-        content: "",
-        order: 0,
-      },
-    ],
+    // content: [
+    //   {
+    //     pid: "",
+    //     cid: "",
+    //     type: "",
+    //     content: "",
+    //     order: 0,
+    //   },
+    // ],
+
+    user: {} as UserTypes,
+    workspace: {} as WorkSpaceTypes,
+    pages: [] as PagesTypes[],
+    content: [] as ContentTypes[],
   },
   reducers: {
     setUser: (state, actions: PayloadAction<UserTypes>) => {
@@ -92,25 +93,10 @@ export const UserDataSlice = createSlice({
       );
     },
     setPages: (state, actions: PayloadAction<PagesTypes[]>) => {
-      actions.payload.map((data) =>
-        state.pages.push({
-          pid: data.pid,
-          ppid: data.ppid,
-          title: data.title,
-          private: data.private,
-        })
-      );
+      state.pages = actions.payload;
     },
     setContents: (state, actions: PayloadAction<ContentTypes[]>) => {
-      actions.payload.map((data) =>
-        state.content.push({
-          pid: data.pid,
-          cid: data.cid,
-          types: data.type,
-          content: data.content,
-          order: data.order,
-        })
-      );
+      state.content = actions.payload;
     },
     setNewPage: (
       state,
@@ -125,23 +111,48 @@ export const UserDataSlice = createSlice({
     },
 
     setUpdatePage: (state, actions: PayloadAction<PagesTypes>) => {
-      // updat of the existing data
-      state.pages.map((page) => {
-        if (
-          page.pid === "" &&
-          (page.title === actions.payload.title ||
-            page.pid === actions.payload.pid)
-        ) {
-          page.pid = actions.payload.pid;
-          page.ppid = actions.payload.ppid;
-          page.title = actions.payload.title;
-          page.private = actions.payload.private;
+      const pageToUpdate = state.pages.find(
+        (page) => page.title === actions.payload.title
+      );
+
+      if (pageToUpdate) {
+        pageToUpdate.pid = actions.payload.pid;
+        pageToUpdate.ppid = actions.payload.ppid;
+        pageToUpdate.title = actions.payload.title;
+        pageToUpdate.private = actions.payload.private;
+      }
+    },
+
+    setNewContent: (state, actions: PayloadAction<ContentTypes>) => {
+      state.content.push({
+        pid: actions.payload.pid,
+        cid: actions.payload.cid, // ""
+        content: actions.payload.content, // ""
+        type: actions.payload.type,
+        order: actions.payload.order,
+      });
+    },
+
+    updateContent: (state, actions: PayloadAction<ContentTypes>) => {
+      state.content.map((content) => {
+        if (content.pid === actions.payload.pid && content.cid == "") {
+          // after getting the first cid with ""
+          content.content = actions.payload.content;
+          content.order = actions.payload.order;
+          return;
         }
       });
     },
   },
 });
 
-export const { setUser, setPages, setContents, setNewPage, setUpdatePage } =
-  UserDataSlice.actions;
+export const {
+  setUser,
+  setPages,
+  setContents,
+  setNewPage,
+  setUpdatePage,
+  setNewContent,
+  updateContent,
+} = UserDataSlice.actions;
 export default UserDataSlice.reducer;

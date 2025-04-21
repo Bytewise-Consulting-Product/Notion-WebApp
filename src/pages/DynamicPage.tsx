@@ -1,115 +1,130 @@
 "use client";
 
 import { Textarea } from "@/components/ui/textarea";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/hooks";
+import { setNewContent, updateContent } from "@/store/features/UserDataSlice";
+import { Content } from "@radix-ui/react-navigation-menu";
+
+import axios, { AxiosError } from "axios";
+import { trackSynchronousRequestDataAccessInDev } from "next/dist/server/app-render/dynamic-rendering";
+import { totalmem } from "os";
+import React, { use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function NotionDynamicPage({ pid }: { pid: string }) {
-  const [fetchData, setFetchData] = useState<string>("");
-  const [text, setText] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const pageContent = useAppSelector((state) => state.userData.content);
+  const dispatch = useAppDispatch();
 
-  // using app selector we will fetch
-  const ResponseUserData = {
-    cid: null,
-    pid: pid,
-    data: {
-      data: "Hii this side sourav Poddar",
-    },
-  };
+  console.log(pageContent);
 
-  // send data
-  async function setData() {
+  const [fetchContent, setFetchContent] = useState<string>("");
+  const [changeContent, setChangeContent] = useState<string>("");
+  const [selectCid, setSelectCid] = useState<string>("");
+  const [order, setOrder] = useState<number>(0);
+
+  async function updateData() {
     try {
-      const response = await axios.post(
-        "/api/content-update",
-        {
-          cid: null,
-          pid: pid,
-          data: { content: fetchData, type: "text", order: 0 },
+      const response = await axios.post("/api/content-update", {
+        pid: pid,
+        cid: selectCid,
+        data: {
+          order: order,
+          type: "text",
+          content: changeContent,
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      });
 
-      if (!response.status) {
-        toast("Error Occurred Refresh Again!!!");
-        throw new Error(response.data.message);
-      }
+      toast("Updated");
 
-      setText(fetchData);
-      console.log(response.data.message);
-      toast("Updated Successfully");
+      console.log(response);
     } catch (err) {
       console.error(err);
-      toast(err?.response.data.message);
-      setFetchData(text); // rollback it with previous message
-      throw new Error(err?.response.data.message);
     }
   }
 
-  async function getData() {
-    // try {
-    //   const response = await axios.get("/api/content-update", {
-    //     params: {
-    //       pid: pid,
-    //     },
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //   });
-
-    //   if (!response.status) {
-    //     throw new Error(response.data.message);
-    //   }
-
-    //   setFetchData(response.data?.data);
-    //   setText(response.data?.data);
-    // } catch (err) {
-    //   console.error(err);
-    //   toast(err.response.data.message);
-    //   redirect("/notion");
-    // } finally {
-    //   setLoading(false);
-    // }
-
-    setFetchData(ResponseUserData.data.data);
-    setText(ResponseUserData.data.data);
-  }
-
-  // fetch the data
+  // debounce
   useEffect(() => {
-    getData();
-  }, [, pid]);
+    if (changeContent === fetchContent) {
+      return;
+    }
 
-  // useDebounce for delayed request
-  useEffect(() => {
     const timer = setTimeout(() => {
-      // check for the difference
-      if (text.length !== fetchData.length) {
-        console.log("sending the requyest");
-        setData();
-      }
+      updateData();
     }, 2000);
 
-    return () => clearTimeout(timer);
-  }, [fetchData]);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [changeContent]);
+
+  async function setData() {
+    try {
+      const response = await axios.post("/api/content-update", {
+        pid: pid,
+        cid: null,
+        data: { content: "", order: 1, type: "text" },
+      });
+
+      console.log(response);
+
+      toast("Updated");
+
+      // dispatch
+      dispatch(
+        updateContent({
+          pid: pid,
+          cid: response.data.cid as String,
+          order: 1,
+          type: "text",
+        })
+      );
+    } catch (err) {
+      // throw new Error(err);
+      console.log(err);
+    }
+  }
 
   return (
     <>
-      <Textarea
-        className="w-3/3 h-3/3 focus:outline-none"
-        placeholder="Enter your cotent here..."
-        value={fetchData}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>): void => {
-          setFetchData(e.target.value);
+      {pageContent.map(
+        (content) =>
+          content.pid === pid && (
+            <Textarea
+              key={content.cid || content.order}
+              defaultValue={content.content}
+              // value={changeContent}
+              onClick={() => {
+                setFetchContent(content.content);
+                setChangeContent(content.content);
+                setSelectCid(content.cid);
+              }}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                setChangeContent(e.target.value);
+              }}
+            />
+          )
+      )}
+
+      <button
+        className="border p-2 hover:bg-gray-100 rounded-2xl"
+        onClick={() => {
+          // dispatch
+          dispatch(
+            setNewContent({
+              pid: pid,
+              cid: "",
+              content: "",
+              order: 1,
+              type: "text",
+            })
+          );
+
+          // send the request
+          // setData();
         }}
-        disabled={loading}
-      />
+      >
+        Add new content
+      </button>
     </>
   );
 }
