@@ -1,3 +1,5 @@
+"use client";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -9,7 +11,7 @@ import {
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 
 // Landing Page without signin
-export function LandingPageOnSignIn() {
+export default function LandingPageOnSignIn() {
   return (
     <>
       <div>

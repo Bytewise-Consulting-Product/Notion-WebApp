@@ -49,7 +49,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -146,10 +146,10 @@ export default function AppSideBar() {
     if (user?.id != null) {
       dispatch(setUser(userDetails));
     }
-  }, [user]);
+  }, [user, dispatch]);
 
   // fetch the data
-  async function getData() {
+  const getData = useCallback(async () => {
     if (!user) {
       return;
     }
@@ -174,12 +174,12 @@ export default function AppSideBar() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [user, dispatch]);
 
   useEffect(() => {
     setLoading(true);
     getData();
-  }, [user]);
+  }, [user, getData]);
 
   if (loading) {
     return <MySideBarSkeleton />;
@@ -217,14 +217,14 @@ function Pages() {
   const [pagesDetails, setPagesDetails] = useState<PagesTypes[]>([]);
   const data = useAppSelector((state) => state.userData.pages);
 
-  function setPagesData() {
+  const setPagesData = useCallback(() => {
     setPagesDetails(data);
     console.log(data);
-  }
+  }, [setPagesDetails, data]);
 
   useEffect(() => {
     setPagesData();
-  }, [data]);
+  }, [data, setPagesData]);
 
   return (
     <>
@@ -409,7 +409,15 @@ function AlertDialogDemo({ refreshFunction }: { refreshFunction: () => void }) {
       refreshFunction();
       router.push(`/notion?pid=${response.data.pid}`);
     } catch (err) {
-      toast(err.response.data.message || "ERRROR");
+      // if (err instanceof AxiosError) {
+      //   toast(err.response.data.message || "ERRROR");
+      // }
+
+      if (axios.isAxiosError(err)) {
+        toast(err.response?.data.message || "Error");
+      } else {
+        toast("An Unexpected error occurred");
+      }
     } finally {
       setPageName("");
     }

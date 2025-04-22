@@ -29,7 +29,6 @@ export async function POST(req: Request) {
     // check for the content
     if (cid?.length === 0) {
       // if the content is not present then create a new content
-      console.log(data);
       const response = await prisma.contents.create({
         data: {
           pid: pid,

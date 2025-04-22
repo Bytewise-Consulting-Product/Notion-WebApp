@@ -1,10 +1,10 @@
-import NotionDynamicPage from "@/pages/DynamicPage";
-import NotionAdverPage from "@/pages/NotionAdverPage";
+import NotionDynamicPage from "@/app/pages/DynamicPage";
+import NotionAdverPage from "@/app/pages/NotionAdverPage";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { pid } = await searchParams;
 

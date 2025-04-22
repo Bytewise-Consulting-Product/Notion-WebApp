@@ -3,7 +3,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import AppSideBar from "@/pages/components/AppSideBar";
+import AppSideBar from "@/app/pages/components/AppSideBar";
 import { Separator } from "@radix-ui/react-separator";
 import { Toaster } from "sonner";
 

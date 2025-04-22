@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Payload } from "../../../prisma/src/app/generate/prisma/runtime/library";
 
 export interface UserTypes {
   uid: string;
@@ -73,7 +72,7 @@ export const UserDataSlice = createSlice({
     // ],
 
     user: {} as UserTypes,
-    workspace: {} as WorkSpaceTypes,
+    workspace: {} as WorkSpaceTypes[],
     pages: [] as PagesTypes[],
     content: [] as ContentTypes[],
   },
