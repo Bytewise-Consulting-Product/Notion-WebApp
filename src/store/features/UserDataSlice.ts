@@ -122,6 +122,15 @@ export const UserDataSlice = createSlice({
       }
     },
 
+    deletePage: (state, actions: { payload: { pid: string } }) => {
+      const index = state.pages.findIndex(
+        (page) => page.pid === actions.payload.pid
+      );
+      if (index !== -1) {
+        state.pages.splice(index, 1); // Remove the page at the found index
+      }
+    },
+
     setNewContent: (state, actions: PayloadAction<ContentTypes>) => {
       state.content.push({
         pid: actions.payload.pid,
@@ -153,5 +162,6 @@ export const {
   setUpdatePage,
   setNewContent,
   updateContent,
+  deletePage,
 } = UserDataSlice.actions;
 export default UserDataSlice.reducer;

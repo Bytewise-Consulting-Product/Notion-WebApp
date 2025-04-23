@@ -8,6 +8,8 @@ export async function GET(req: NextRequest) {
   try {
     // find the pages
     if (await prisma.pages.findUnique({ where: { pid: pid } })) {
+      await prisma.contents.deleteMany({ where: { pid: pid } });
+
       if (await prisma.pages.delete({ where: { pid: pid } })) {
         return new Response(
           JSON.stringify({ message: "Deleted Successfully", success: true }),

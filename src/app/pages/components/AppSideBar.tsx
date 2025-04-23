@@ -73,6 +73,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
+  deletePage,
   PagesTypes,
   setContents,
   setNewPage,
@@ -86,8 +87,6 @@ import { useRouter } from "next/navigation";
 
 // SideBar Component
 export default function AppSideBar() {
-  // const [pages, setPages] =
-  // useState<{ name: string; items: { title: string; url: string }[] }[]>();
   const [loading, setLoading] = useState(false); // spiner
   const { user } = useUser();
   const dispatch = useAppDispatch();
@@ -212,10 +211,11 @@ export default function AppSideBar() {
 
 // Sidebar Pages Section
 function Pages() {
-  // selected Pid
+  const dispatch = useAppDispatch();
   const [selectPid, setSelectPid] = useState<string>("");
   const [pagesDetails, setPagesDetails] = useState<PagesTypes[]>([]);
   const data = useAppSelector((state) => state.userData.pages);
+  const router = useRouter();
 
   const setPagesData = useCallback(() => {
     setPagesDetails(data);
@@ -226,8 +226,6 @@ function Pages() {
     setPagesData();
   }, [data, setPagesData]);
 
-  console.log(selectPid);
-
   return (
     <>
       <SidebarGroup>
@@ -236,108 +234,112 @@ function Pages() {
         <ContextMenu>
           {/* Favourite Pages */}
 
-          <SidebarMenu>
-            <Collapsible
-              asChild
-              defaultOpen={false}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    tooltip={"Favourite Pages"}
-                    className="flex justify-between"
-                  >
-                    <p className=" text-ellipsis overflow-hidden whitespace-nowrap">
-                      Favourite Pages
-                    </p>
-                    <div>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </div>
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <ContextMenuTrigger>
-                    <SidebarMenuSub>
-                      {pagesDetails.length != 0 &&
-                        pagesDetails.map(
-                          (item) =>
-                            !item.private && (
-                              <SidebarMenuSubItem
-                                key={item.pid}
-                                onMouseDown={() => {
-                                  setSelectPid(item.pid);
-                                }}
-                              >
-                                <SidebarMenuSubButton asChild>
-                                  <Link href={`/notion?pid=${item.pid}`}>
-                                    <span className="overflow-hidden text-ellipsis">
-                                      {item.title}
-                                    </span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            )
-                        )}
-                    </SidebarMenuSub>
-                  </ContextMenuTrigger>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
-          </SidebarMenu>
+          <div className="containter1">
+            <SidebarMenu>
+              <Collapsible
+                asChild
+                defaultOpen={false}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      tooltip={"Favourite Pages"}
+                      className="flex justify-between"
+                    >
+                      <p className=" text-ellipsis overflow-hidden whitespace-nowrap">
+                        Favourite Pages
+                      </p>
+                      <div>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </div>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <ContextMenuTrigger>
+                      <SidebarMenuSub>
+                        {pagesDetails.length != 0 &&
+                          pagesDetails.map(
+                            (item) =>
+                              !item.private && (
+                                <SidebarMenuSubItem
+                                  key={item.pid}
+                                  onMouseDown={() => {
+                                    setSelectPid(item.pid);
+                                  }}
+                                >
+                                  <SidebarMenuSubButton asChild>
+                                    <Link href={`/notion?pid=${item.pid}`}>
+                                      <span className="overflow-hidden text-ellipsis">
+                                        {item.title}
+                                      </span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              )
+                          )}
+                      </SidebarMenuSub>
+                    </ContextMenuTrigger>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            </SidebarMenu>
+          </div>
 
-          <SidebarMenu>
-            <Collapsible
-              asChild
-              defaultOpen={true}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    tooltip={"Private Pages"}
-                    className="flex justify-between"
-                  >
-                    <p>
-                      {/* {items[0].title} */}
-                      Private Pages
-                    </p>
-                    {/* create pages */}
-                    <div className="flex items-center gap-3">
-                      <AlertDialogDemo refreshFunction={setPagesData} />
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 " />
-                    </div>
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <ContextMenuTrigger>
-                    <SidebarMenuSub>
-                      {pagesDetails.length != 0 &&
-                        pagesDetails.map(
-                          (item) =>
-                            item.private && (
-                              <SidebarMenuSubItem
-                                key={item.pid}
-                                onMouseDown={() => {
-                                  setSelectPid(item.pid);
-                                }}
-                              >
-                                <SidebarMenuSubButton asChild>
-                                  <Link href={`/notion?pid=${item.pid}`}>
-                                    <span className="overflow-hidden text-ellipsis">
-                                      {item.title}
-                                    </span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            )
-                        )}
-                    </SidebarMenuSub>
-                  </ContextMenuTrigger>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
-          </SidebarMenu>
+          <div className="container2">
+            <SidebarMenu>
+              <Collapsible
+                asChild
+                defaultOpen={true}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      tooltip={"Private Pages"}
+                      className="flex justify-between"
+                    >
+                      <p>
+                        {/* {items[0].title} */}
+                        Private Pages
+                      </p>
+                      {/* create pages */}
+                      <div className="flex items-center gap-3">
+                        <AlertDialogDemo refreshFunction={setPagesData} />
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 " />
+                      </div>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <ContextMenuTrigger>
+                      <SidebarMenuSub>
+                        {pagesDetails.length != 0 &&
+                          pagesDetails.map(
+                            (item) =>
+                              item.private && (
+                                <SidebarMenuSubItem
+                                  key={item.pid}
+                                  onMouseDown={() => {
+                                    setSelectPid(item.pid);
+                                  }}
+                                >
+                                  <SidebarMenuSubButton asChild>
+                                    <Link href={`/notion?pid=${item.pid}`}>
+                                      <span className="overflow-hidden text-ellipsis">
+                                        {item.title}
+                                      </span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              )
+                          )}
+                      </SidebarMenuSub>
+                    </ContextMenuTrigger>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            </SidebarMenu>
+          </div>
 
           <ContextMenuContent>
             <ContextMenuItem
@@ -353,19 +355,24 @@ function Pages() {
                   },
                 });
 
+                dispatch(deletePage({ pid: selectPid }));
+
+                router.push("/notion");
+
                 if (!response.status) {
                   throw new Error("Error in deleting the page");
                 }
 
                 toast(response.data.message);
+
                 // after deleting the page we will remove from the page
               }}
             >
               <p>Delete</p>
               <FileX />
             </ContextMenuItem>
-            <ContextMenuItem>Billing</ContextMenuItem>
-            <ContextMenuItem>Team</ContextMenuItem>
+            <ContextMenuItem>Add to favourites</ContextMenuItem>
+            <ContextMenuItem>...</ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
 

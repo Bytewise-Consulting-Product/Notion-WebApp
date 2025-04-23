@@ -2,7 +2,7 @@
 
 import { Textarea } from "@/components/ui/textarea";
 import { useAppDispatch, useAppSelector } from "@/hooks/hooks";
-import { setNewContent } from "@/store/features/UserDataSlice";
+import { setNewContent, updateContent } from "@/store/features/UserDataSlice";
 
 import axios from "axios";
 
@@ -35,11 +35,23 @@ export default function NotionDynamicPage({
 
       console.log(response);
 
+      dispatch(
+        updateContent({
+          pid: pid as string,
+          cid: response.data.cid,
+          content: changeContent,
+          order: 1,
+          type: "text",
+        })
+      );
+
+      setSelectCid(response.data.cid);
+
       toast("Updated");
     } catch (err) {
       console.error(err);
     }
-  }, [changeContent, pid, selectCid]);
+  }, [changeContent, pid, selectCid, dispatch]);
 
   // debounce
   useEffect(() => {
@@ -49,7 +61,7 @@ export default function NotionDynamicPage({
 
     const timer = setTimeout(() => {
       cachedFn();
-    }, 2000);
+    }, 1400);
 
     return () => {
       clearTimeout(timer);
@@ -63,8 +75,8 @@ export default function NotionDynamicPage({
           (content) =>
             content.pid === pid && (
               <Textarea
-                key={content.cid || content.order}
-                defaultValue={content.content}
+                key={content.cid}
+                defaultValue={content.content || content.order}
                 // value={changeContent}
                 onClick={() => {
                   setFetchContent(content.content);
@@ -80,7 +92,7 @@ export default function NotionDynamicPage({
       </div>
 
       <button
-        className="border p-2 hover:bg-gray-100 rounded-2xl"
+        className="border p-2 hover:bg-gray-100 rounded-2xl mt-10"
         onClick={() => {
           // dispatch
           dispatch(
@@ -97,7 +109,7 @@ export default function NotionDynamicPage({
           // setData();
         }}
       >
-        Add new content
+        Add new
       </button>
     </>
   );
