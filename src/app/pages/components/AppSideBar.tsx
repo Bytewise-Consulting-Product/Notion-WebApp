@@ -226,6 +226,8 @@ function Pages() {
     setPagesData();
   }, [data, setPagesData]);
 
+  console.log(selectPid);
+
   return (
     <>
       <SidebarGroup>
@@ -314,7 +316,12 @@ function Pages() {
                         pagesDetails.map(
                           (item) =>
                             item.private && (
-                              <SidebarMenuSubItem key={item.pid}>
+                              <SidebarMenuSubItem
+                                key={item.pid}
+                                onMouseDown={() => {
+                                  setSelectPid(item.pid);
+                                }}
+                              >
                                 <SidebarMenuSubButton asChild>
                                   <Link href={`/notion?pid=${item.pid}`}>
                                     <span className="overflow-hidden text-ellipsis">

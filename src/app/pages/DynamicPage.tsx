@@ -20,7 +20,6 @@ export default function NotionDynamicPage({
   const [fetchContent, setFetchContent] = useState<string>("");
   const [changeContent, setChangeContent] = useState<string>("");
   const [selectCid, setSelectCid] = useState<string>("");
-  // const [order, setOrder] = useState<number>(0);
 
   const cachedFn = useCallback(async () => {
     try {

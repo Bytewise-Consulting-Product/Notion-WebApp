@@ -6,8 +6,12 @@ import {
 import AppSideBar from "@/app/pages/components/AppSideBar";
 import { Separator } from "@radix-ui/react-separator";
 import { Toaster } from "sonner";
+import UrlBreadcrumbs from "../pages/components/UrlBreadCrumbs";
+import { Suspense } from "react";
 
-export default function NotionLayout({
+const SideBarCompomnent = () => <AppSideBar />;
+
+export default async function NotionLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -15,7 +19,7 @@ export default function NotionLayout({
   return (
     <>
       <SidebarProvider>
-        <AppSideBar />
+        <SideBarCompomnent />
         <SidebarInset>
           <header className=" flex h-16 shrink-0 items-center gap-2 transition-[width, height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div
@@ -25,10 +29,13 @@ export default function NotionLayout({
               <SidebarTrigger className="-ml-1" />
               <Separator orientation="vertical" className="mr-2 h-4 " />
               {/* Breadcrunmbs */}
-              URL
+
+              <Suspense>
+                <UrlBreadcrumbs />
+              </Suspense>
             </div>
           </header>
-          <div className="w-[1400px] h-[700px] ml-5 mt-5">{children}</div>
+          <div className="w-[1400px] h-[700px] ml-5 mt-5">{children} </div>
         </SidebarInset>
       </SidebarProvider>
       <Toaster />

@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
@@ -8,7 +8,7 @@ const LandingPageOnSignIn = dynamic(() => import("@/app/LandingPage"), {
 });
 
 export default async function Page() {
-  const user = await auth();
+  const user = await currentUser();
 
   if (user) {
     redirect("/notion");
